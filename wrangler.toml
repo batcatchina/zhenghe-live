@@ -1,0 +1,15 @@
+name = "zhenghe-live"
+compatibility_date = "2025-01-01"
+pages_build_output_dir = "public"
+
+# 说明：Cloudflare Pages 绑定 GitHub 仓库后自动构建 public/ 并加载 functions/。
+# 以下变量在 Cloudflare 控制台 → Pages → 设置 → 环境变量 中配置（密钥类用"加密"）。
+# [vars] 仅作占位说明，真实密钥请勿提交到仓库。
+#
+# LIVEKIT_URL=wss://your-project.livekit.cloud
+# LIVEKIT_API_KEY=***
+# LIVEKIT_API_SECRET=***
+# ROUTER=0x2348ec656e395edAbcE2e198DC44647456d81867
+# LOVEVAULT=0x16A7F8CfAD687A87183fCbd1dF7aF09dce05D357
+# USDC=0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913
+# CHAIN_ID=8453

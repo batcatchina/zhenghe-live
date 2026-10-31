@@ -1,0 +1,19 @@
+{
+  "name": "zhenghe-live",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "正和 Agent 直播场景：架在 Agent 市场之上的 live 服务类型，正和消费驱动 LoveVault 飞轮",
+  "scripts": {
+    "dev": "wrangler pages dev",
+    "deploy": "wrangler pages deploy public"
+  },
+  "dependencies": {
+    "ethers": "^6.13.0",
+    "livekit-client": "^2.22.4",
+    "livekit-server-sdk": "^2.22.4"
+  },
+  "devDependencies": {
+    "wrangler": "^3.0.0"
+  }
+}
