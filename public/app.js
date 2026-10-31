@@ -90,10 +90,16 @@ async function refreshStats() {
   try {
     const r = await fetch('/api/live-stats');
     const s = await r.json();
-    if (s.error) { document.getElementById('nav').textContent = '读链失败'; return; }
-    document.getElementById('nav').textContent = s.nav.toFixed(6) + ' USDC';
-    document.getElementById('tvl').textContent = s.totalAssetsUsdc.toFixed(2) + ' USDC';
     document.getElementById('chain').textContent = 'Base ' + s.chainId;
+    if (s.degraded || s.nav === null) {
+      document.getElementById('nav').textContent = '链上数据暂不可用';
+      document.getElementById('tvl').textContent = '—';
+      const note = document.getElementById('stats-note');
+      if (note) note.textContent = s.note || '请配置 RPC_URL';
+      return;
+    }
+    document.getElementById('nav').textContent = Number(s.nav).toFixed(6) + ' USDC';
+    document.getElementById('tvl').textContent = Number(s.totalAssetsUsdc).toFixed(2) + ' USDC';
   } catch (e) {
     document.getElementById('nav').textContent = '网络异常';
   }
