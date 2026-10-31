@@ -47,6 +47,8 @@ async function viewWithRetry(rpcs, to, data) {
   for (const url of rpcs) {
     try {
       const hex = await rpcCall(url, "eth_call", [{ to, data }, "latest"]);
+      // 假零值（0x00..00）多为公共 RPC 节点错误/回滚的占位，NAV/TVL 不可能为 0，视为失败重试
+      if (/^0x0+$/.test(hex)) throw new Error("zero result (likely RPC node error) from " + url);
       return BigInt(hex);
     } catch (e) {
       lastErr = e;
