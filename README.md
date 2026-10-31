@@ -1,5 +1,9 @@
 # 正和 Agent 直播场景 · `zhenghe-live`
 
+> ⚠️ **本仓库已弃用（DEPRECATED / archived）。** 直播已正式集成进原系统
+> [`zhenghe-system`](https://github.com/batcatchina/zhenghe-system)（即 `app.zheng-he.top`），
+> 作为 `live` 服务类型并入，不再独立维护。详见根目录 [`DEPRECATED.md`](./DEPRECATED.md)。
+
 > 部署方式：GitHub 仓库 → Cloudflare Pages（静态前端 `public/` + 边缘函数 `functions/`）。
 > 定位：**架在「正和 Agent 市场」之上的一个"直播"服务场景**，复用现有消费模块 + 同行者模块，链上合约零改动。
 
