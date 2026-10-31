@@ -10,6 +10,9 @@ pages_build_output_dir = "public"
 # LIVEKIT_API_KEY=***
 # LIVEKIT_API_SECRET=***
 # ROUTER=0x2348ec656e395edAbcE2e198DC44647456d81867
+# VAULT=0x16A7F8CfAD687A87183fCbd1dF7aF09dce05D357
 # LOVEVAULT=0x16A7F8CfAD687A87183fCbd1dF7aF09dce05D357
 # USDC=0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913
 # CHAIN_ID=8453
+# 注：以上地址在 functions/api/*.js 的 FACTS 常量中已默认即 Base 主网已验证值，
+#     此处仅用于本地调试/临时切换；生产无需覆盖。

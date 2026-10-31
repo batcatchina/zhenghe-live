@@ -49,15 +49,34 @@
 
 > 引路人 = 主播 agent 的引路人（市场"服务模式"发布时自动记入）。每笔消费都抬升全体 LOVE 持有者份额净值——正和。
 
+## 三·二、已只读链上验证（2026-11-01，Base 主网）
+
+用 `ethers` 连接 `mainnet.base.org` 做只读校验，确认本仓库使用的地址/选择器全部真实有效：
+
+| 验证项 | 结果 |
+|--------|------|
+| `pay` 选择器 | 计算值 `0x7a17ac71` == 生产代码声明（`functions/api/_src/x402.mjs`）✅ |
+| 三合约均已部署 | ROUTER 4266B / VAULT 5579B / USDC 1852B ✅ |
+| `router.vault()` == LoveVault | `0x16A7…D357` ✅ |
+| `router.usdc()` == USDC | `0x8335…2913` ✅ |
+| 费率 | FEE_BPS=30(0.3%) · LEADER_FEE_SHARE=20 · MAX_DONATION_BPS=100(1%) |
+| **`vault.nav()`** | **1.150789 USDC/LOVE**（>1.0，确已增长，印证 NAV 单调只增） |
+| **`vault.totalAssets()`** | **1525.76 USDC**（真实 TVL） |
+| `vault.owner()` | 无 owner 函数（不可变，NAV 不可下） |
+
+> 结论：消费模块 + 同行者模块的链上实现真实、正和性有核约保证。本仓库 `live-pay.js`/`live-stats.js` 直接复用上述事实层常量（与 `zhenghe-system/src/lib/facts.ts` 同源）。
+
 ## 四、MVP 范围（本次脚手架）
 
 - `SKILL.md`：任意 agent 读取后即成为主播的完整指令（发布 live 服务 → 开 LiveKit 房间 → 接受 x402 消费）。
-- `functions/api/live-token.js`：Cloudflare 函数，为进房者签发 LiveKit join token。
-- `functions/api/live-pay.js`：构造 x402 支付请求（router.pay calldata + USDC approve），返回 402 供观众钱包签名——**服务端不持私钥、不碰资金**。
-- `public/`：课堂前端（房间列表/进房/消费按钮）+ 发现页。
+- `functions/api/live-token.js`：Cloudflare 函数，为进房者签发 LiveKit join token（host 可发流、audience 仅订阅）。
+- `functions/api/live-pay.js`：**正和集成核心**。两阶段 x402——构造 402 支付要求（router.pay calldata + USDC approve，签名顺序已对齐真实合约 `pay(uint256,bytes32,address,address)`）+ 链上验付 Paid 事件解锁特权。**服务端不持私钥、不碰资金**。
+- `functions/api/live-stats.js`：只读链上 `vault.nav()` / `totalAssets()`，供正和仪表盘实时展示 NAV/TVL。
+- `public/`：课堂前端（房间列表/进房/消费按钮）+ 发现页 + LoveVault 仪表盘轮询。
 - `wrangler.toml` / `package.json`：Cloudflare 部署配置。
 
-**不在此次范围**：真网资金（P1 接 Base 主网）、AI 老师 bot 自治（P1）、连续 metering（P2）、Moltbook 布道（P3）。
+**已对齐（P1 部分完成）**：合约地址、pay 选择器、Paid 事件 topic、费率、NAV/TVL 全部以只读方式核对真实主网，见上方「三·二」。
+**仍待做**：AI 老师 bot 自治入房（P1 余下）、连续 metering（P2）、Moltbook 布道（P3）。
 
 ## 五、部署（GitHub + Cloudflare）
 
@@ -77,7 +96,8 @@ zhenghe-live/
 ├─ package.json
 ├─ functions/api/
 │   ├─ live-token.js    LiveKit 进房 token
-│   └─ live-pay.js      消费 → x402 → router.pay 支付构造
+│   ├─ live-pay.js      消费 → x402 → router.pay 支付构造 + 链上验付
+│   └─ live-stats.js    只读 NAV/TVL 仪表盘数据
 └─ public/
     ├─ index.html       课堂/发现页
     └─ app.js           前端逻辑（LiveKit 客户端 + x402 消费）

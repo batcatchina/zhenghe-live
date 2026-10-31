@@ -12,7 +12,7 @@
       header { padding: 16px 20px; background: #161a22; border-bottom: 1px solid #232838; }
       header h1 { margin: 0; font-size: 18px; }
       header p { margin: 4px 0 0; font-size: 13px; color: #9aa3b2; }
-      main { display: grid; grid-template-columns: 320px 1fr; gap: 16px; padding: 16px; }
+      main { display: grid; grid-template-columns: 340px 1fr; gap: 16px; padding: 16px; }
       @media (max-width: 760px) { main { grid-template-columns: 1fr; } }
       .card { background: #161a22; border: 1px solid #232838; border-radius: 12px; padding: 14px; }
       .room { display: flex; justify-content: space-between; align-items: center;
@@ -24,10 +24,14 @@
       .actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
       #video { width: 100%; aspect-ratio: 16/9; background: #000; border-radius: 10px; margin-top: 12px; }
       input { width: 100%; padding: 8px; border-radius: 8px; border: 1px solid #232838;
-              background: #0f1115; color: #e7e9ee; margin-top: 6px; }
+              background: #0f1115; color: #e7e9ee; margin-top: 6px; font-size: 13px; }
       #log { font-family: ui-monospace, monospace; font-size: 12px; color: #9aa3b2;
              white-space: pre-wrap; max-height: 180px; overflow: auto; margin-top: 10px; }
       .tag { font-size: 11px; padding: 2px 6px; border-radius: 6px; background: #1f6feb33; color: #7ab0ff; }
+      .vault { background: #0f1b14; border-color: #1f6f4b33; }
+      .vault .row { display: flex; justify-content: space-between; padding: 6px 0; font-size: 13px; }
+      .vault .v { color: #4ade80; font-variant-numeric: tabular-nums; }
+      .vault .note { font-size: 11px; color: #6b8f7a; margin-top: 8px; line-height: 1.5; }
     </style>
   </head>
   <body>
@@ -37,11 +41,20 @@
     </header>
     <main>
       <section class="card">
+        <h3>正和仪表盘 · LoveVault</h3>
+        <div class="vault">
+          <div class="row"><span>NAV（每 LOVE=USDC）</span><span class="v" id="nav">…</span></div>
+          <div class="row"><span>TVL（金库 USDC）</span><span class="v" id="tvl">…</span></div>
+          <div class="row"><span>链</span><span class="v" id="chain">Base 8453</span></div>
+          <div class="note" id="vaultNote">NAV 单调只增（核约保证：无 owner / 无提现）。每笔正和消费都抬升此值，全体同行者共享增值。</div>
+        </div>
+        <hr style="border-color:#232838" />
         <h3>发现 · 直播间</h3>
         <div id="rooms"></div>
         <hr style="border-color:#232838" />
         <h3>进房</h3>
         <input id="room" placeholder="直播间 ID (liveId)" value="demo-live-001" />
+        <input id="host" placeholder="主播地址 (merchant)" value="0x227c0ba400000000000000000000000000000001" />
         <input id="identity" placeholder="你的身份 (地址或昵称)" value="audience-1" />
         <div class="actions">
           <button id="join">进入直播间</button>
@@ -59,11 +72,13 @@
         </div>
         <div id="log"></div>
         <p style="font-size:12px;color:#9aa3b2">
-          消费需浏览器钱包（如 MetaMask，Base 主网）。点击后先授权 USDC 给 router，再提交 router.pay。
-          主播收到 USDC，0.3% 注 LoveVault 推高 NAV。生产环境改用 x402 facilitator 自动完成。
+          消费需浏览器钱包（如 MetaMask，Base 主网）。点击后先授权 USDC 给 router，再提交 router.pay；
+          随后服务端链上验付并解锁特权。主播收 USDC，0.3% 注 LoveVault 推高 NAV。
         </p>
       </section>
     </main>
+    <!-- ethers（全局 UMD，仅前端用于 keccak 与钱包交互；服务端不依赖） -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.13.4/ethers.umd.min.js"></script>
     <script type="module" src="/app.js"></script>
   </body>
 </html>
