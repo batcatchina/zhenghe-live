@@ -66,12 +66,24 @@ export async function onRequest(context) {
   };
 
   try {
-    const [navRaw, totalRaw] = await Promise.all([
-      viewWithRetry(rpcs, FACTS.vault, FACTS.navSel),
-      viewWithRetry(rpcs, FACTS.vault, FACTS.totalSel),
-    ]);
-    const nav = Number(navRaw) / 1e6; // nav() 返回 1e6 精度
-    const totalAssetsUsdc = Number(totalRaw) / 1e6; // USDC 6 位
+    // 串行 + 各自独立容错：避免并发竞态导致某路拿到空响应却未正确报错
+    let nav = null,
+      tvl = null,
+      navHex = null,
+      tvlHex = null;
+    try {
+      navHex = await viewWithRetry(rpcs, FACTS.vault, FACTS.navSel);
+      nav = Number(navHex) / 1e6;
+    } catch (e) {
+      nav = null;
+    }
+    try {
+      tvlHex = await viewWithRetry(rpcs, FACTS.vault, FACTS.totalSel);
+      tvl = Number(tvlHex) / 1e6;
+    } catch (e) {
+      tvl = null;
+    }
+    const degraded = nav === null && tvl === null;
     return new Response(
       JSON.stringify({
         chainId: FACTS.chainId,
@@ -80,12 +92,14 @@ export async function onRequest(context) {
         router: FACTS.router,
         usdc: FACTS.usdc,
         nav, // 每枚 LOVE 对应 USDC（>1.0 表示金库已增长）
-        totalAssetsUsdc,
+        totalAssetsUsdc: tvl,
+        navHex,
+        tvlHex,
         loveHoldersNote:
           "NAV 单调只增（核约保证：无 owner / 无提现 / 无管理函数）。每笔正和消费都抬升此值，全体同行者共享增值。",
         factsDoc: FACTS_DOC,
         source: "Base 主网只读 RPC",
-        degraded: false,
+        degraded,
         updatedAt: new Date().toISOString(),
       }),
       { status: 200, headers }
