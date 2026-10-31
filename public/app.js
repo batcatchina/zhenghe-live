@@ -2,7 +2,7 @@
 // - LiveKit 客户端（CDN ESM）进房 / 订阅
 // - 正和消费：/api/live-pay 两阶段 x402（构造 402 → 钱包签名 approve+pay → 链上验付解锁）
 // - 正和仪表盘：轮询 /api/live-stats 真实 NAV/TVL
-import { Room, RoomEvent, Track } from 'https://cdn.jsdelivr.net/npm/livekit-client@2.22.4/dist/livekit-client.esm.mjs';
+import { Room, RoomEvent, Track, DataPacket_Kind } from 'https://cdn.jsdelivr.net/npm/livekit-client@2.22.4/dist/livekit-client.esm.mjs';
 
 const log = (m) => {
   const el = document.getElementById('log');
@@ -24,8 +24,16 @@ async function join() {
   room.on(RoomEvent.TrackSubscribed, (track) => {
     if (track.kind === Track.Kind.Video) track.attach(document.getElementById('video'));
   });
+  room.on(RoomEvent.DataReceived, (payload) => {
+    let text = '';
+    try { text = new TextDecoder().decode(payload); } catch {}
+    if (!text) return;
+    const isTeacher = /【正和老师】/.test(text);
+    addChat(isTeacher ? 'teacher' : 'sys', text);
+  });
   await room.connect(data.url, data.token);
   log(`已进入直播间 ${liveId}（${data.role}）`);
+  addChat('sys', '正和老师已在房间，发消息即可对话（!nav 看金库数据）');
 }
 function leave() {
   if (room) room.disconnect();
@@ -131,6 +139,32 @@ function renderRooms() {
 
 document.getElementById('join').onclick = join;
 document.getElementById('leave').onclick = leave;
+
+// ── 聊天：与正和老师对话（数据通道）──
+function addChat(who, text) {
+  const el = document.getElementById('chat');
+  const div = document.createElement('div');
+  div.className = 'row ' + who;
+  div.textContent = text;
+  el.appendChild(div);
+  el.scrollTop = el.scrollHeight;
+}
+async function sendChat() {
+  const input = document.getElementById('chatInput');
+  const text = input.value.trim();
+  if (!text || !room) return;
+  addChat('me', '我: ' + text);
+  input.value = '';
+  try {
+    await room.localParticipant.publishData(text, { kind: DataPacket_Kind.RELIABLE });
+  } catch (e) {
+    addChat('sys', '发送失败: ' + e.message);
+  }
+}
+document.getElementById('send').onclick = sendChat;
+document.getElementById('chatInput').addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') sendChat();
+});
 document.querySelectorAll('[data-action]').forEach((btn) => {
   btn.onclick = () => consume(btn.dataset.action, btn.dataset.usdc);
 });

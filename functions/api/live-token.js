@@ -45,6 +45,7 @@ export async function onRequestGet({ request, env }) {
     roomJoin: true,
     canPublish: isHost,
     canSubscribe: true,
+    canPublishData: true, // 观众也能发聊天数据（与正和老师对话）
   };
   const payload = {
     iss: apiKey,

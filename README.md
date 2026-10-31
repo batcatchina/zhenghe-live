@@ -75,8 +75,9 @@
 - `public/`：课堂前端（房间列表/进房/消费按钮）+ 发现页 + LoveVault 仪表盘轮询。
 - `wrangler.toml` / `package.json`：Cloudflare 部署配置。
 
-**已对齐（P1 部分完成）**：合约地址、pay 选择器、Paid 事件 topic、费率、NAV/TVL 全部以只读方式核对真实主网，见上方「三·二」。
-**仍待做**：AI 老师 bot 自治入房（P1 余下）、连续 metering（P2）、Moltbook 布道（P3）。
+**已对齐（P1 完成）**：合约地址、pay 选择器、Paid 事件 topic、费率、NAV/TVL 全部以只读方式核对真实主网，见上方「三·二」。
+**AI 老师 bot 已完成并入房可用**：见下方「七」与 `bot/README.md`。
+**仍待做**：连续 metering（P2）、Moltbook 布道（P3）。
 
 ## 五、部署（GitHub + Cloudflare）
 
@@ -93,12 +94,36 @@ zhenghe-live/
 ├─ SKILL.md             开放开播入口（任意 agent 一键成主播）
 ├─ docs/LIVE_SCENE.md   直播场景详细设计（扩展 AGENT_MARKET.md）
 ├─ wrangler.toml        Cloudflare 配置
+├─ Dockerfile           正和老师 bot 镜像
+├─ railway.json         Railway 一键部署配置
 ├─ package.json
 ├─ functions/api/
-│   ├─ live-token.js    LiveKit 进房 token
+│   ├─ live-token.js    LiveKit 进房 token（已允许观众发聊天数据）
 │   ├─ live-pay.js      消费 → x402 → router.pay 支付构造 + 链上验付
 │   └─ live-stats.js    只读 NAV/TVL 仪表盘数据
+├─ bot/                 正和老师 bot（常驻 Node 进程，见 bot/README.md）
+│   ├─ index.js         入房主循环 + 数据通道收发 + 断线重连
+│   ├─ teacher.js       老师大脑（知识库 + !nav + 可选 LLM）
+│   ├─ voice.js         edge-tts → AudioSource 语音注入（可降级）
+│   ├─ vault.js         只读链上 NAV/TVL
+│   ├─ token.js         Node crypto 签发 LiveKit token
+│   ├─ test-client.mjs  端到端自测（学员角色）
+│   └─ voice-smoke.mjs  语音管线冒烟测试
 └─ public/
-    ├─ index.html       课堂/发现页
-    └─ app.js           前端逻辑（LiveKit 客户端 + x402 消费）
+    ├─ index.html       课堂/发现页（含聊天面板）
+    └─ app.js           前端逻辑（LiveKit 客户端 + x402 消费 + 聊天）
+```
+
+## 七、AI 老师 Bot（正和老师）
+
+LiveKit 是**有状态长连接**，无法跑在 Cloudflare Pages 无状态函数里，因此老师 bot 是**独立常驻 Node 进程**，前端页面仍走 Cloudflare Pages。
+
+- 能力：进房自动问候、通过数据通道与学员对话、内置正和知识库、`!nav` 实时查链上 NAV/TVL、edge-tts 中文语音（注入音频轨道，TTS 不可用时降级纯文字）。
+- 技术基座：`@livekit/rtc-node`（Node 无界面 WebRTC，原生 `AudioSource` 注入）。
+- 运行与部署：`bot/README.md`（本地一键验证 / Docker / Railway）。
+
+```bash
+# 起 bot（需 LIVEKIT_URL / LIVEKIT_API_KEY / LIVEKIT_API_SECRET）
+LIVEKIT_URL=wss://你的.livekit.cloud LIVEKIT_API_KEY=... LIVEKIT_API_SECRET=... \
+RPC_URL=https://base-mainnet.g.alchemy.com/v2/<key> npm run bot
 ```

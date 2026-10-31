@@ -32,6 +32,14 @@
       .vault .row { display: flex; justify-content: space-between; padding: 6px 0; font-size: 13px; }
       .vault .v { color: #4ade80; font-variant-numeric: tabular-nums; }
       .vault .note { font-size: 11px; color: #6b8f7a; margin-top: 8px; line-height: 1.5; }
+      .chat { height: 200px; overflow: auto; background: #0f1115; border: 1px solid #232838;
+              border-radius: 8px; padding: 8px; font-size: 13px; line-height: 1.5; }
+      .chat .me { color: #9ad; }
+      .chat .teacher { color: #7CFC9A; }
+      .chat .sys { color: #9aa3b2; font-size: 12px; }
+      .chat .row { margin: 4px 0; }
+      .chat-input { display: flex; gap: 6px; margin-top: 8px; }
+      .chat-input input { margin-top: 0; flex: 1; }
     </style>
   </head>
   <body>
@@ -76,6 +84,13 @@
           消费需浏览器钱包（如 MetaMask，Base 主网）。点击后先授权 USDC 给 router，再提交 router.pay；
           随后服务端链上验付并解锁特权。主播收 USDC，0.3% 注 LoveVault 推高 NAV。
         </p>
+        <hr style="border-color:#232838" />
+        <h3>聊天 · 与正和老师对话</h3>
+        <div id="chat" class="chat"></div>
+        <div class="chat-input">
+          <input id="chatInput" placeholder="问正和老师…（输入 !nav 看金库实时数据）" />
+          <button id="send">发送</button>
+        </div>
       </section>
     </main>
     <!-- ethers（全局 UMD，仅前端用于 keccak 与钱包交互；服务端不依赖） -->

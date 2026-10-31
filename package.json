@@ -6,14 +6,17 @@
   "description": "正和 Agent 直播场景：架在 Agent 市场之上的 live 服务类型，正和消费驱动 LoveVault 飞轮",
   "scripts": {
     "dev": "wrangler pages dev",
-    "deploy": "wrangler pages deploy public"
+    "deploy": "wrangler pages deploy public",
+    "bot": "tsx bot/index.js",
+    "bot:check": "tsx bot/index.js --check"
   },
   "dependencies": {
-    "ethers": "^6.13.0",
-    "livekit-client": "^2.22.4",
-    "livekit-server-sdk": "^2.22.4"
+    "@livekit/rtc-node": "^1.2.1",
+    "edge-tts": "^1.0.1",
+    "ethers": "^6.13.0"
   },
   "devDependencies": {
-    "wrangler": "^3.0.0"
+    "wrangler": "^3.0.0",
+    "tsx": "^4.19.0"
   }
 }
